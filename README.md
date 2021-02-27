@@ -78,19 +78,20 @@ var key = Encoding.ASCII.GetBytes(Configuration.GetValue<string>("SecretKey"));
 
 services.AddAuthentication(options =>
 {
-  options.DefaultAuthenticationScheme = JwtBearerDefaults.AuthenticationScheme;
-  options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options => {
-  options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenVa
-  {
-    IssuerSigningKey = new SymetricSecurityKey(key),
-    ValidateLifetime = true,
-    ValidIssuer = "",
-    ValidAudience = "",
-    ValidateAudience = false,
-    ValidateIssuer = false,
-    ValidateIssuerSigningKey = true
-  }
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    {
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateLifetime = true,
+        ValidIssuer = "",
+        ValidAudience = "",
+        ValidateAudience = false,
+        ValidateIssuer = false,
+        ValidateIssuerSigningKey = true,
+    };
 });
 ```
 
