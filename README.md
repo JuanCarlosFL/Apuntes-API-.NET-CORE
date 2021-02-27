@@ -95,29 +95,56 @@ services.AddAuthentication(options =>
 });
 ```
 
+- Tenemos que poner una configuración para que todos nuestros controladores requieran autenticación, así evitamos que se nos olvide poner en algún contrlador el atributo [Authorize]
+
+```C#
+services.AddControllers(config =>
+{
+    var policy = new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .Build();
+    config.Filters.Add(new AuthorizeFilter(policy));
+});
+```
+
 - Hay que añadir el middleware app.UseAuthentication() por delante del app.UseAuthorization();
 - Ahora ya podemos trabajar en el LoginUserController, se puede añadir un método al user controller pero es mejor en un controlador separado por si queremos añadirle más seguridad pj
 
 ```C#
-private readonly IConfiguration _configuration;
+ private readonly IConfiguration _configuration;
 
-public LoginUserController(IConfiguration configuration)
+public JwtUserController(IConfiguration configuration)
 {
-  _configuration = configuration
+    _configuration = configuration;
 }
 
 [AllowAnonymous]
 [HttpGet("RequestToken")]
 public JsonResult RequestToken()
 {
-  DateTime utcNow = DateTime.UtcNow;
-  
-  List<Claim> claims = new List<Claim>
-  {
-    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-    new Claim(JwtRegisteredClaimNames.Iat, utcNow.ToString())
-  }
-    
+    DateTime utcNow = DateTime.UtcNow;
+
+    List<Claim> claims = new List<Claim>
+    {
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(JwtRegisteredClaimNames.Iat, utcNow.ToString())
+    };
+
+    DateTime expiredDateTime = utcNow.AddDays(1);
+
+    var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+
+    //key + credentials
+    var key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("SecretKey"));
+    var symmetricSecurityKey = new SymmetricSecurityKey(key);
+    var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+
+    string token = jwtSecurityTokenHandler.WriteToken(new JwtSecurityToken(claims: claims, expires: expiredDateTime, notBefore: utcNow, signingCredentials: signingCredentials));
+
+    return new JsonResult(new { token });
+}
+```
+
     
     
     
