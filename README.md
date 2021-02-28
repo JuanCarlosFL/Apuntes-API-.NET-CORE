@@ -145,13 +145,34 @@ public JsonResult RequestToken()
 }
 ```
 
+### Odata
+
+- El protocolo de Datos Abierto (OData) o Open Data Protocoles, es un protocolo abierto que permite la creación y consumición de APIs RESTful que puedan ser consultadas e interoperables de una manera simple y estandarizada.  Microsoft inició dicho protocolo en el 2007.  Este protocolo permite obtener recursos de una manera simple, usando queries dentro de los request HTTP. Por ejemplo  https://localhost:44344/odata/students?$select=name
+- Operaciones (Select, Filter, Orderby, Extend (permite hacer un Include))
+
+### Paso 1
+- Instalar el Nuget: Microsoft.Data.OData.Core
+
+### Paso 2
+- Añadir el servicio: services.AddOData(); y en services.AddControllers añadir config.EnableEndPointRouting = false.
+
+### Paso 3 
+- Añadir el middleware de las imágenes a continuación y borrar el app.UseEndPoints para dejar que OData maneje los endpoints.
+
+![image](https://user-images.githubusercontent.com/66184823/109414017-e77f0b80-79b0-11eb-9f86-1c3aa550188e.png)
+
+![image](https://user-images.githubusercontent.com/66184823/109414081-3fb60d80-79b1-11eb-9c90-5e48f78d5d49.png)
+
+### Paso 4
+- Añadir el atributo [EnableQuery()] al método del controlador con el que queramos usarlo.
+- Y el método ahora sería public ActionResult<IQueryable<User>> Get()
+- Ahora ya podemos hacer queries tal que:
+ - http://localhost:5000/api/user?$select=name,userid,active&$filter=active eq true
+ - http://localhost:5000/api/user?$expand=userRoles&$orderby=name
     
-    
-    
-    
-    
-    
-    
+# Pruebas unitarias
+
+- Se debe crear un proyecto a parte y añadirle las referencias, vamos a utilizar un proyecto con xUnit
     
     
     
